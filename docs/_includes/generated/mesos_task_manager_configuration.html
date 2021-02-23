@@ -63,6 +63,11 @@
             <td>Optional value to define the TaskManager’s hostname. The pattern _TASK_ is replaced by the actual id of the Mesos task. This can be used to configure the TaskManager to use Mesos DNS (e.g. _TASK_.flink-service.mesos) for name lookups.</td>
         </tr>
         <tr>
+            <td><h5>mesos.resourcemanager.tasks.labels</h5></td>
+            <td style="word-wrap: break-word;">(none)</td>
+            <td>The labels to be set for TaskManager. Specified as key:value pairs separated by commas. For example, key1:value1,key2:value2.</td>
+        </tr>
+        <tr>
             <td><h5>mesos.resourcemanager.tasks.mem</h5></td>
             <td style="word-wrap: break-word;">1024</td>
             <td>Memory to assign to the Mesos workers in MB.</td>
@@ -78,9 +83,9 @@
             <td>A comma separated list of URIs of custom artifacts to be downloaded into the sandbox of Mesos workers.</td>
         </tr>
         <tr>
-            <td><h5>mesos.resourcemanager.tasks.labels</h5></td>
+            <td><h5>mesos.resourcemanager.tasks.user</h5></td>
             <td style="word-wrap: break-word;">(none)</td>
-            <td>A comma separated key value pairs of labels to be set on taskmanager. For example, key1:value1,key2:value2</td>
+            <td>The Unix user to be used to run the tasks in mesos containers.</td>
         </tr>
         <tr>
             <td><h5>taskmanager.numberOfTaskSlots</h5></td>

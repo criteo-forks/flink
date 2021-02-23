@@ -145,6 +145,13 @@ public class MesosTaskManagerParameters {
 			.withDescription("The labels to be set for TaskManager. Specified as key:value pairs separated by commas. " +
 				"For example, key1:value1,key2:value2.");
 
+	public static final ConfigOption<String> MESOS_RM_TASKS_USER =
+		key("mesos.resourcemanager.tasks.user")
+			.stringType()
+			.defaultValue(System.getProperty("user.name"))
+			.withDescription("The Unix user as which mesos tasks will run, default to the same user as jobmanager.");
+
+
 	/**
 	 * Value for {@code MESOS_RESOURCEMANAGER_TASKS_CONTAINER_TYPE} setting. Tells to use the Mesos containerizer.
 	 */
@@ -184,6 +191,8 @@ public class MesosTaskManagerParameters {
 
 	private final Map<String, String> taskManagerLabels;
 
+	private final Option<String> user;
+
 	public MesosTaskManagerParameters(
 			double cpus,
 			int gpus,
@@ -199,7 +208,8 @@ public class MesosTaskManagerParameters {
 			Option<String> bootstrapCommand,
 			Option<String> taskManagerHostname,
 			Map<String, String> taskManagerLabels,
-			List<String> uris) {
+			List<String> uris,
+			Option<String> user) {
 
 		this.cpus = cpus;
 		this.gpus = gpus;
@@ -216,6 +226,7 @@ public class MesosTaskManagerParameters {
 		this.taskManagerHostname = Preconditions.checkNotNull(taskManagerHostname);
 		this.taskManagerLabels = Preconditions.checkNotNull(taskManagerLabels);
 		this.uris = Preconditions.checkNotNull(uris);
+		this.user = Preconditions.checkNotNull(user);
 	}
 
 	/**
@@ -325,6 +336,10 @@ public class MesosTaskManagerParameters {
 		return uris;
 	}
 
+	public Option<String> user() {
+		return user;
+	}
+
 	@Override
 	public String toString() {
 		return "MesosTaskManagerParameters{" +
@@ -416,6 +431,9 @@ public class MesosTaskManagerParameters {
 		String tmCommand = flinkConfig.getString(MESOS_TM_CMD);
 		Option<String> tmBootstrapCommand = Option.apply(flinkConfig.getString(MESOS_TM_BOOTSTRAP_CMD));
 
+		// obtain the user which is running the task
+		Option<String> user = Option.apply(flinkConfig.getString(MESOS_RM_TASKS_USER));
+
 		return new MesosTaskManagerParameters(
 			cpus,
 			gpus,
@@ -431,7 +449,8 @@ public class MesosTaskManagerParameters {
 			tmBootstrapCommand,
 			taskManagerHostname,
 			taskManagerLabels,
-			uris);
+			uris,
+			user);
 	}
 
 	private static List<ConstraintEvaluator> parseConstraints(String mesosConstraints) {

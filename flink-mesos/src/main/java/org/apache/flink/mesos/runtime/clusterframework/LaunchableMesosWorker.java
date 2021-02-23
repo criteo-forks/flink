@@ -264,6 +264,11 @@ public class LaunchableMesosWorker implements LaunchableTask {
 			throw new IllegalArgumentException("insufficient # of ports assigned");
 		}
 
+		// Set unix user which mesos tasks will run as
+		if (params.user().isDefined()) {
+			cmd.setUser(params.user().get());
+		}
+
 		// ship additional files
 		for (ContainerSpecification.Artifact artifact : containerSpec.getArtifacts()) {
 			cmd.addUris(Utils.uri(resolver, artifact));
