@@ -182,7 +182,7 @@ public class MesosTaskManagerParameters {
 
 	private final List<String> uris;
 
-	private final Option<Map<String, String>> taskManagerLabels;
+	private final Map<String, String> taskManagerLabels;
 
 	public MesosTaskManagerParameters(
 			double cpus,
@@ -198,7 +198,7 @@ public class MesosTaskManagerParameters {
 			String command,
 			Option<String> bootstrapCommand,
 			Option<String> taskManagerHostname,
-			Option<Map<String, String>> taskManagerLabels,
+			Map<String, String> taskManagerLabels,
 			List<String> uris) {
 
 		this.cpus = cpus;
@@ -314,7 +314,7 @@ public class MesosTaskManagerParameters {
 	/**
 	 * Get the taskManager labels.
 	 */
-	public Option<Map<String, String>> getTaskManagerLabels() {
+	public Map<String, String> getTaskManagerLabels() {
 		return taskManagerLabels;
 	}
 
@@ -410,7 +410,7 @@ public class MesosTaskManagerParameters {
 		Option<String> taskManagerHostname = Option.apply(flinkConfig.getString(MESOS_TM_HOSTNAME));
 
 		//obtain Task Manager labels from the configuration
-		Option<Map<String, String>> taskManagerLabels = Option.apply(flinkConfig.getOptional(MESOS_RM_TASKS_LABELS).orElse(Collections.emptyMap()));
+		Map<String, String> taskManagerLabels = flinkConfig.getOptional(MESOS_RM_TASKS_LABELS).orElse(Collections.emptyMap());
 
 		//obtain command-line from the configuration
 		String tmCommand = flinkConfig.getString(MESOS_TM_CMD);

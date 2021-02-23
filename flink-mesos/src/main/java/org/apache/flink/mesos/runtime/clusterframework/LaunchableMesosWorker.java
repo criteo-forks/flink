@@ -233,10 +233,10 @@ public class LaunchableMesosWorker implements LaunchableTask {
 		Option<String> taskManagerHostnameOption = params.getTaskManagerHostname();
 
 		//configure task manager labels
-		Option<Map<String, String>> taskManagerLabels = params.getTaskManagerLabels();
-		if (taskManagerLabels.isDefined()) {
+		Map<String, String> taskManagerLabels = params.getTaskManagerLabels();
+		if (!taskManagerLabels.isEmpty()) {
 			Protos.Labels.Builder labelsBuilder = Protos.Labels.newBuilder();
-			for (Map.Entry<String, String> entry: taskManagerLabels.get().entrySet()) {
+			for (Map.Entry<String, String> entry: taskManagerLabels.entrySet()) {
 				Protos.Label.Builder labelBuilder = Protos.Label.newBuilder();
 				labelBuilder.setKey(entry.getKey());
 				labelBuilder.setValue(entry.getValue());
