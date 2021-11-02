@@ -212,7 +212,10 @@ public class MetricUtils {
 		try {
 			final com.sun.management.OperatingSystemMXBean mxBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-			metrics.<Double, Gauge<Double>>gauge("Load", mxBean::getProcessCpuLoad);
+			// In a containerized environment, the "system cpu load" is the load regarding to container's available processors.
+			// Whilst "process cpu load" is always computed against all cpus of the host.
+			metrics.<Double, Gauge<Double>>gauge("SystemLoad", mxBean::getSystemCpuLoad);
+			metrics.<Double, Gauge<Double>>gauge("ProcessLoad", mxBean::getProcessCpuLoad);
 			metrics.<Long, Gauge<Long>>gauge("Time", mxBean::getProcessCpuTime);
 		} catch (Exception e) {
 			LOG.warn("Cannot access com.sun.management.OperatingSystemMXBean.getProcessCpuLoad()" +
