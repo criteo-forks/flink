@@ -22,6 +22,7 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.connector.source.ReaderInfo;
 import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.flink.api.connector.source.SourceSplit;
 import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
@@ -50,12 +51,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.runtime.source.coordinator.SourceCoordinatorSerdeUtils.readAndVerifyCoordinatorSerdeVersion;
 import static org.apache.flink.runtime.source.coordinator.SourceCoordinatorSerdeUtils.readBytes;
 import static org.apache.flink.runtime.source.coordinator.SourceCoordinatorSerdeUtils.writeCoordinatorSerdeVersion;
+import static org.apache.flink.util.IOUtils.closeAll;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
@@ -79,8 +79,6 @@ public class SourceCoordinator<SplitT extends SourceSplit, EnumChkT>
 
     /** The name of the operator this SourceCoordinator is associated with. */
     private final String operatorName;
-    /** A single-thread executor to handle all the changes to the coordinator. */
-    private final ExecutorService coordinatorExecutor;
     /** The Source that is associated with this SourceCoordinator. */
     private final Source<?, SplitT, EnumChkT> source;
     /** The serializer that handles the serde of the SplitEnumerator checkpoints. */
@@ -97,11 +95,9 @@ public class SourceCoordinator<SplitT extends SourceSplit, EnumChkT>
 
     public SourceCoordinator(
             String operatorName,
-            ExecutorService coordinatorExecutor,
             Source<?, SplitT, EnumChkT> source,
             SourceCoordinatorContext<SplitT> context) {
         this.operatorName = operatorName;
-        this.coordinatorExecutor = coordinatorExecutor;
         this.source = source;
         this.enumCheckpointSerializer = source.getEnumeratorCheckpointSerializer();
         this.context = context;
@@ -143,18 +139,8 @@ public class SourceCoordinator<SplitT extends SourceSplit, EnumChkT>
     @Override
     public void close() throws Exception {
         LOG.info("Closing SourceCoordinator for source {}.", operatorName);
-        try {
-            if (started) {
-                context.close();
-                if (enumerator != null) {
-                    enumerator.close();
-                }
-            }
-        } finally {
-            coordinatorExecutor.shutdownNow();
-            // We do not expect this to actually block for long. At this point, there should
-            // be very few task running in the executor, if any.
-            coordinatorExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        if (started) {
+            closeAll(context, enumerator);
         }
         LOG.info("Source coordinator for source {} closed.", operatorName);
     }
@@ -163,19 +149,31 @@ public class SourceCoordinator<SplitT extends SourceSplit, EnumChkT>
     public void handleEventFromOperator(int subtask, OperatorEvent event) {
         runInEventLoop(
                 () -> {
-                    LOG.debug(
-                            "Handling event from subtask {} of source {}: {}",
-                            subtask,
-                            operatorName,
-                            event);
                     if (event instanceof RequestSplitEvent) {
+                        LOG.info(
+                                "Source {} received split request from parallel task {}",
+                                operatorName,
+                                subtask);
                         enumerator.handleSplitRequest(
                                 subtask, ((RequestSplitEvent) event).hostName());
                     } else if (event instanceof SourceEventWrapper) {
-                        enumerator.handleSourceEvent(
-                                subtask, ((SourceEventWrapper) event).getSourceEvent());
+                        final SourceEvent sourceEvent =
+                                ((SourceEventWrapper) event).getSourceEvent();
+                        LOG.debug(
+                                "Source {} received custom event from parallel task {}: {}",
+                                operatorName,
+                                subtask,
+                                sourceEvent);
+                        enumerator.handleSourceEvent(subtask, sourceEvent);
                     } else if (event instanceof ReaderRegistrationEvent) {
-                        handleReaderRegistrationEvent((ReaderRegistrationEvent) event);
+                        final ReaderRegistrationEvent registrationEvent =
+                                (ReaderRegistrationEvent) event;
+                        LOG.info(
+                                "Source {} registering reader for parallel task {} @ {}",
+                                operatorName,
+                                subtask,
+                                registrationEvent.location());
+                        handleReaderRegistrationEvent(registrationEvent);
                     } else {
                         throw new FlinkException("Unrecognized Operator Event: " + event);
                     }
@@ -325,7 +323,7 @@ public class SourceCoordinator<SplitT extends SourceSplit, EnumChkT>
             return;
         }
 
-        coordinatorExecutor.execute(
+        context.runInCoordinatorThread(
                 () -> {
                     try {
                         action.run();
