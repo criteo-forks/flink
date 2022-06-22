@@ -28,7 +28,6 @@ import org.apache.flink.util.StringUtils;
 import org.apache.flink.util.function.FunctionWithException;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.flink.yarn.configuration.YarnResourceManagerDriverConfiguration;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -43,6 +42,7 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 import org.apache.hadoop.util.StringInterner;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
+import org.apache.hadoop.yarn.api.records.ApplicationAccessType;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
@@ -576,6 +576,8 @@ public final class Utils {
                     "Could not set security tokens because Hadoop's token file location is unknown.");
         }
 
+        setAclsFor(ctx, flinkConfig);
+
         return ctx;
     }
 
@@ -702,5 +704,12 @@ public final class Utils {
         }
 
         return yarnConfig;
+    }
+
+    public static void setAclsFor(ContainerLaunchContext amContainer, org.apache.flink.configuration.Configuration flinkConfig) {
+        Map<ApplicationAccessType, String> acls = new HashMap<>();
+        acls.put(ApplicationAccessType.VIEW_APP, flinkConfig.getString(YarnConfigOptions.APPLICATION_VIEW_ACL));
+        acls.put(ApplicationAccessType.MODIFY_APP, flinkConfig.getString(YarnConfigOptions.APPLICATION_MODIFY_ACL));
+        amContainer.setApplicationACLs(acls);
     }
 }

@@ -1142,6 +1142,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
         amContainer.setEnvironment(appMasterEnv);
 
+        Utils.setAclsFor(amContainer, configuration);
+
         // Set up resource type requirements for ApplicationMaster
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(clusterSpecification.getMasterMemoryMB());
