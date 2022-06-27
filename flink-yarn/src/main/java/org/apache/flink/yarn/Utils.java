@@ -707,10 +707,16 @@ public final class Utils {
         return yarnConfig;
     }
 
-    public static void setAclsFor(ContainerLaunchContext amContainer, org.apache.flink.configuration.Configuration flinkConfig) {
+    public static void setAclsFor(
+            ContainerLaunchContext amContainer,
+            org.apache.flink.configuration.Configuration flinkConfig) {
         Map<ApplicationAccessType, String> acls = new HashMap<>();
-        acls.put(ApplicationAccessType.VIEW_APP, flinkConfig.getString(YarnConfigOptions.APPLICATION_VIEW_ACL));
-        acls.put(ApplicationAccessType.MODIFY_APP, flinkConfig.getString(YarnConfigOptions.APPLICATION_MODIFY_ACL));
+        acls.put(
+                ApplicationAccessType.VIEW_APP,
+                flinkConfig.getString(YarnConfigOptions.APPLICATION_VIEW_ACL));
+        acls.put(
+                ApplicationAccessType.MODIFY_APP,
+                flinkConfig.getString(YarnConfigOptions.APPLICATION_MODIFY_ACL));
         amContainer.setApplicationACLs(acls);
     }
 }

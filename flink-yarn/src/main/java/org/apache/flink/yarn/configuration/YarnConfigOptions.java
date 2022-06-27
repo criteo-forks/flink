@@ -409,18 +409,18 @@ public class YarnConfigOptions {
             key("yarn.view.acl")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("Users and groups to give VIEW acess. The ACL is set as" +
-                            " \"user1[,user2,...] group1[,group2,...]\"");
+                    .withDescription(
+                            "Users and groups to give VIEW acess. The ACL is set as"
+                                    + " \"user1[,user2,...] group1[,group2,...]\"");
 
-    /**
-     * Users and groups to give MODIFY access.
-     */
+    /** Users and groups to give MODIFY access. */
     public static final ConfigOption<String> APPLICATION_MODIFY_ACL =
             key("yarn.modify.acl")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("Users and groups to give MODIFY acess. The ACL is set as" +
-                            " \"user1[,user2,...] group1[,group2,...]\"");
+                    .withDescription(
+                            "Users and groups to give MODIFY acess. The ACL is set as"
+                                    + " \"user1[,user2,...] group1[,group2,...]\"");
 
     // ------------------------------------------------------------------------
 
