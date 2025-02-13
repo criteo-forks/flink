@@ -17,7 +17,6 @@ under the License.
 -->
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 		 xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
 	<parent>
 		<groupId>org.apache</groupId>
 		<artifactId>apache</artifactId>
@@ -28,7 +27,7 @@ under the License.
 
 	<groupId>org.apache.flink</groupId>
 	<artifactId>flink-parent</artifactId>
-	<version>1.13-SNAPSHOT</version>
+	<version>1.13-latest-scala212</version>
 
 	<name>Flink : </name>
 	<packaging>pom</packaging>
@@ -48,6 +47,13 @@ under the License.
 		<connection>git@github.com:apache/flink.git</connection>
 		<developerConnection>scm:git:https://gitbox.apache.org/repos/asf/flink.git</developerConnection>
 	</scm>
+
+	<repositories>
+		<repository>
+			<id>criteo-repo</id>
+			<url>http://nexus.criteo.prod/content/groups/criteo</url>
+		</repository>
+	</repositories>
 
 	<modules>
 		<!-- Dummy module to force execution of the Maven Shade plugin (see Shade plugin below) -->
@@ -168,7 +174,7 @@ under the License.
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>force-shading</artifactId>
-			<version>1.13-SNAPSHOT</version>
+			<version>1.13-latest-scala212</version>
 		</dependency>
 
 		<!-- Root dependencies for all projects -->
