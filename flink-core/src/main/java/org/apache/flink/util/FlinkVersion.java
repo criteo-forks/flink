@@ -7,7 +7,7 @@ import java.util.Properties;
 /** Get Flink version. */
 public final class FlinkVersion {
     private static final String VERSION = loadVersion();
-    private static final String VERSION_FILE_PATH = "criteo-flink-version.properties";
+    private static final String VERSION_FILE_PATH = "flink-version.properties";
     private static final String VERSION_PROPERTY_PATH = "flink.version";
 
     private FlinkVersion() {}
