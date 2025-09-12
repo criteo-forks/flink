@@ -201,8 +201,6 @@ object EnumValueSerializerCompatibilityTest {
     val run = new global.Run
 
     run.compile(List(file.getAbsolutePath))
-
-    reporter.printSummary()
   }
 }
 
