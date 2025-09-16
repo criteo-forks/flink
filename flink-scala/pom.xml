@@ -32,6 +32,10 @@ under the License.
 	<name>Flink : Scala</name>
 	<packaging>jar</packaging>
 
+	<properties>
+		<japicmp.skip>false</japicmp.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.flink</groupId>
