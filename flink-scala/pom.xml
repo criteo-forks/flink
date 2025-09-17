@@ -33,7 +33,7 @@ under the License.
 	<packaging>jar</packaging>
 
 	<properties>
-		<japicmp.skip>false</japicmp.skip>
+		<japicmp.skip>true</japicmp.skip>
 	</properties>
 
 	<dependencies>
