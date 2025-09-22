@@ -214,8 +214,8 @@ class StreamingWithStateTestBase(state: StateBackendMode) extends StreamingTestB
       }
 
       if (char1 == leftBrace) {
-        val rightBraceIdx = array1.subSequence(idx + 1, l).toString.indexOf(rightBrace)
-        appendStrToMap(array1.subSequence(idx + 1, rightBraceIdx + idx + 2), map1)
+        val rightBraceIdx = array1.slice(idx + 1, l).toString.indexOf(rightBrace)
+        appendStrToMap(new String(array1.slice(idx + 1, rightBraceIdx + idx + 2)), map1)
         idx += rightBraceIdx
       } else {
         idx += 1
